@@ -17,12 +17,10 @@ export default function GoogleOAuth({ mode, className = "" }: GoogleOAuthProps) 
     setIsLoading(true)
     
     try {
-      const nextQuery = window.location.search || ''
-      const redirectTo = `${window.location.origin}/auth/callback${nextQuery}`
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo,
+          redirectTo:`${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent select_account',
