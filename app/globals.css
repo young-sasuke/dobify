@@ -10,6 +10,13 @@
   body {
     @apply bg-gray-50 text-gray-900;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden; /* prevent accidental horizontal scroll on small screens */
+  }
+
+  /* Make media elements fluid by default */
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
   }
 }
 
@@ -28,6 +35,38 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Helpful responsive utilities */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  /* Auto-fit grid helpers for responsive galleries/cards */
+  .grid-auto-fit-160 {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .grid-auto-fit-200 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(243 244 246); /* gray-100 */
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shimmer 1.2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
 }
 
 /* Custom scrollbar */

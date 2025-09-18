@@ -210,7 +210,7 @@ export default function AddressBookPage() {
       <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-6 lg:mb-8">
             <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => router.back()}
@@ -230,6 +230,17 @@ export default function AddressBookPage() {
           </div>
 
           {/* Saved Addresses */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="p-4 rounded-xl border border-gray-200 bg-white">
+                  <div className="h-4 w-24 skeleton rounded mb-3" />
+                  <div className="h-3 w-full skeleton rounded mb-2" />
+                  <div className="h-3 w-3/4 skeleton rounded" />
+                </div>
+              ))}
+            </div>
+          )}
           {!loading && rows.length === 0 && (
             <div className="bg-white border border-gray-100 rounded-xl p-6 text-center">
               <MapPinIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />

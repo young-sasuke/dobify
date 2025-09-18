@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
-import { MapPin, Clock, Calendar, Truck, Zap, ArrowLeft } from "lucide-react"
+import { MapPin, Clock, Calendar, Truck, Zap, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react"
 import { getSevenDates, earliestDeliveryDateISO } from "@/lib/slots"
 import type { MatrixRule } from "@/lib/slots"
 import { useToast } from "@/hooks/use-toast"
@@ -85,6 +85,8 @@ export default function SlotSelectionPage() {
   // Pickup/Delivery slots
   const [pickupSlots, setPickupSlots] = useState<any[]>([])
   const [deliverySlots, setDeliverySlots] = useState<any[]>([])
+  const [pickupLoading, setPickupLoading] = useState<boolean>(false)
+  const [deliveryLoading, setDeliveryLoading] = useState<boolean>(false)
 
   const hhmmToMin = (t?: string) => {
     if (!t) return 0
@@ -98,6 +100,14 @@ export default function SlotSelectionPage() {
   const [matrixRule, setMatrixRule] = useState<MatrixRule | null>(null)
 
   const deliveryRef = useRef<HTMLDivElement | null>(null) as any
+  const pickupDatesRef = useRef<HTMLDivElement | null>(null)
+  const deliveryDatesRef = useRef<HTMLDivElement | null>(null)
+  const pickupSelectedRef = useRef<HTMLButtonElement | null>(null)
+  const deliverySelectedRef = useRef<HTMLButtonElement | null>(null)
+  const [pickupCanLeft, setPickupCanLeft] = useState(false)
+  const [pickupCanRight, setPickupCanRight] = useState(false)
+  const [deliveryCanLeft, setDeliveryCanLeft] = useState(false)
+  const [deliveryCanRight, setDeliveryCanRight] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -182,6 +192,7 @@ export default function SlotSelectionPage() {
   useEffect(() => {
     const fetchPickup = async () => {
       if (!selectedDate) return
+      setPickupLoading(true)
       try {
         const res = await fetch("/api/slots/", {
           method: "POST",
@@ -203,6 +214,8 @@ export default function SlotSelectionPage() {
         }
       } catch {
         setPickupSlots([])
+      } finally {
+        setPickupLoading(false)
       }
     }
     fetchPickup()
@@ -248,12 +261,72 @@ export default function SlotSelectionPage() {
     }, 50)
   }, [selectedTimeSlot, deliveryType, matrixRule, selectedDate, availableDates, deliveryDate])
 
+  // Helper: update scroll arrow visibility for carousels
+  const updateScrollState = (
+    el: HTMLElement | null,
+    setLeft: (v: boolean) => void,
+    setRight: (v: boolean) => void
+  ) => {
+    if (!el) {
+      setLeft(false)
+      setRight(false)
+      return
+    }
+    const { scrollLeft, scrollWidth, clientWidth } = el
+    setLeft(scrollLeft > 0)
+    setRight(scrollLeft + clientWidth < scrollWidth - 1)
+  }
+
+  useEffect(() => {
+    const el = pickupDatesRef.current
+    if (!el) return
+    const onScroll = () => updateScrollState(el, setPickupCanLeft, setPickupCanRight)
+    onScroll()
+    el.addEventListener("scroll", onScroll)
+    const onResize = () => onScroll()
+    window.addEventListener("resize", onResize)
+    return () => {
+      el.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onResize)
+    }
+  }, [availableDates])
+
+  useEffect(() => {
+    const el = deliveryDatesRef.current
+    if (!el) return
+    const onScroll = () => updateScrollState(el, setDeliveryCanLeft, setDeliveryCanRight)
+    onScroll()
+    el.addEventListener("scroll", onScroll)
+    const onResize = () => onScroll()
+    window.addEventListener("resize", onResize)
+    return () => {
+      el.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onResize)
+    }
+  }, [availableDates, selectedTimeSlot, deliveryDate])
+
+  // Keep selected date centered
+  useEffect(() => {
+    try { pickupSelectedRef.current?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }) } catch {}
+  }, [selectedDate])
+  useEffect(() => {
+    try { deliverySelectedRef.current?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }) } catch {}
+  }, [deliveryDate])
+
+  const scrollPickupDates = (delta: number) => {
+    pickupDatesRef.current?.scrollBy({ left: delta, behavior: "smooth" })
+  }
+  const scrollDeliveryDates = (delta: number) => {
+    deliveryDatesRef.current?.scrollBy({ left: delta, behavior: "smooth" })
+  }
+
   // Helper to fetch delivery slots
   async function fetchDeliveryFor({
     targetDeliveryDate,
     pickupSlotEndMin,
   }: { targetDeliveryDate: string; pickupSlotEndMin: number }) {
     if (!targetDeliveryDate) return
+    setDeliveryLoading(true)
     try {
       const payload = {
         date: targetDeliveryDate,
@@ -293,6 +366,8 @@ export default function SlotSelectionPage() {
     } catch (err: any) {
       setDeliverySlots([])
       toast({ title: "Failed to load delivery slots", description: err?.message || "Network error" })
+    } finally {
+      setDeliveryLoading(false)
     }
   }
 
@@ -543,22 +618,57 @@ export default function SlotSelectionPage() {
                   <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Select Pickup Date</h3>
                 </div>
-                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-                  {availableDates.map((date) => (
-                    <button
-                      key={date.date}
-                      onClick={() => setSelectedDate(date.date)}
-                      className={`flex-shrink-0 flex flex-col items-center p-3 sm:p-4 rounded-lg border transition-all duration-200 min-w-[70px] sm:min-w-[80px] ${
-                        selectedDate === date.date
-                          ? "border-blue-500 bg-blue-50 text-blue-600"
-                          : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                      }`}
-                    >
-                      <span className="text-xs sm:text-sm font-medium">{date.day}</span>
-                      <span className="text-lg sm:text-xl font-bold">{date.dayNum}</span>
-                      <span className="text-xs text-gray-500">{date.month}</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  {/* Left gradient & control */}
+                  <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent" />
+                  <button
+                    type="button"
+                    onClick={() => scrollPickupDates(-220)}
+                    disabled={!pickupCanLeft}
+                    aria-label="Scroll dates left"
+                    className={`hidden sm:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full shadow-md border bg-white z-10 ${
+                      pickupCanLeft ? "opacity-100" : "opacity-50 cursor-not-allowed"
+                    }`}
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+
+                  {/* Scrollable dates */}
+                  <div
+                    ref={pickupDatesRef}
+                    className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                  >
+                    {availableDates.map((date) => (
+                      <button
+                        key={date.date}
+                        ref={selectedDate === date.date ? pickupSelectedRef : undefined}
+                        onClick={() => setSelectedDate(date.date)}
+                        className={`flex-shrink-0 flex flex-col items-center p-3 sm:p-4 rounded-lg border transition-all duration-200 min-w-[70px] sm:min-w-[80px] snap-start ${
+                          selectedDate === date.date
+                            ? "border-blue-500 bg-blue-50 text-blue-600"
+                            : "border-gray-200 hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <span className="text-xs sm:text-sm font-medium">{date.day}</span>
+                        <span className="text-lg sm:text-xl font-bold">{date.dayNum}</span>
+                        <span className="text-xs text-gray-500">{date.month}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Right gradient & control */}
+                  <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent" />
+                  <button
+                    type="button"
+                    onClick={() => scrollPickupDates(220)}
+                    disabled={!pickupCanRight}
+                    aria-label="Scroll dates right"
+                    className={`hidden sm:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full shadow-md border bg-white z-10 ${
+                      pickupCanRight ? "opacity-100" : "opacity-50 cursor-not-allowed"
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-700" />
+                  </button>
                 </div>
               </div>
 
@@ -568,25 +678,36 @@ export default function SlotSelectionPage() {
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Schedule Pickup</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {pickupSlots.map((slot) => (
-                    <button
-                      key={slot.id}
-                      onClick={() => handleSelectPickup(slot)}
-                      disabled={!slot.available}
-                      className={`p-3 sm:p-4 rounded-lg border text-left transition-all duration-200 ${
-                        !slot.available
-                          ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-                          : String(selectedTimeSlot) === String(slot.id)
-                          ? "border-blue-500 bg-blue-50 text-blue-600"
-                          : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                      }`}
-                    >
-                      <span className="text-sm sm:text-base font-medium">{slot.label}</span>
-                      {!slot.available && <span className="block text-xs text-red-500 mt-1">Unavailable</span>}
-                    </button>
-                  ))}
-                </div>
+                {pickupLoading ? (
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="p-3 sm:p-4 rounded-lg border border-gray-200 skeleton h-12 sm:h-14"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    {pickupSlots.map((slot) => (
+                      <button
+                        key={slot.id}
+                        onClick={() => handleSelectPickup(slot)}
+                        disabled={!slot.available}
+                        className={`p-3 sm:p-4 rounded-lg border text-left transition-all duration-200 ${
+                          !slot.available
+                            ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                            : String(selectedTimeSlot) === String(slot.id)
+                            ? "border-blue-500 bg-blue-50 text-blue-600"
+                            : "border-gray-200 hover:bg-gray-50 text-gray-700"
+                        }`}
+                      >
+                        <span className="text-sm sm:text-base font-medium">{slot.label}</span>
+                        {!slot.available && <span className="block text-xs text-red-500 mt-1">Unavailable</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Select Delivery Date */}
@@ -596,35 +717,67 @@ export default function SlotSelectionPage() {
                     <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                     <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Select Delivery Date</h3>
                   </div>
-                  <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-                    {availableDates.map((date) => {
-                      const isBeforeMin = minDeliveryDate && date.date < minDeliveryDate
-                      return (
-                        <button
-                          key={date.date}
-                          onClick={() => {
-                            if (isBeforeMin) {
-                              setDeliveryDate(minDeliveryDate)
-                              toast({ title: "Delivery date adjusted", description: `Earliest allowed delivery is ${minDeliveryDate}.` })
-                              return
-                            }
-                            setDeliveryDate(date.date)
-                          }}
-                          disabled={!!isBeforeMin}
-                          className={`flex-shrink-0 flex flex-col items-center p-3 sm:p-4 rounded-lg border transition-all duration-200 min-w-[70px] sm:min-w-[80px] ${
-                            isBeforeMin
-                              ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-                              : deliveryDate === date.date
-                              ? "border-blue-500 bg-blue-50 text-blue-600"
-                              : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-medium">{date.day}</span>
-                          <span className="text-lg sm:text-xl font-bold">{date.dayNum}</span>
-                          <span className="text-xs text-gray-500">{date.month}</span>
-                        </button>
-                      )
-                    })}
+                  <div className="relative">
+                    <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent" />
+                    <button
+                      type="button"
+                      onClick={() => scrollDeliveryDates(-220)}
+                      disabled={!deliveryCanLeft}
+                      aria-label="Scroll dates left"
+                      className={`hidden sm:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full shadow-md border bg-white z-10 ${
+                        deliveryCanLeft ? "opacity-100" : "opacity-50 cursor-not-allowed"
+                      }`}
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+
+                    <div
+                      ref={deliveryDatesRef}
+                      className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    >
+                      {availableDates.map((date) => {
+                        const isBeforeMin = minDeliveryDate && date.date < minDeliveryDate
+                        return (
+                          <button
+                            key={date.date}
+                            ref={deliveryDate === date.date ? deliverySelectedRef : undefined}
+                            onClick={() => {
+                              if (isBeforeMin) {
+                                setDeliveryDate(minDeliveryDate)
+                                toast({ title: "Delivery date adjusted", description: `Earliest allowed delivery is ${minDeliveryDate}.` })
+                                return
+                              }
+                              setDeliveryDate(date.date)
+                            }}
+                            disabled={!!isBeforeMin}
+                            className={`flex-shrink-0 flex flex-col items-center p-3 sm:p-4 rounded-lg border transition-all duration-200 min-w-[70px] sm:min-w-[80px] snap-start ${
+                              isBeforeMin
+                                ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                                : deliveryDate === date.date
+                                ? "border-blue-500 bg-blue-50 text-blue-600"
+                                : "border-gray-200 hover:bg-gray-50 text-gray-700"
+                            }`}
+                          >
+                            <span className="text-xs sm:text-sm font-medium">{date.day}</span>
+                            <span className="text-lg sm:text-xl font-bold">{date.dayNum}</span>
+                            <span className="text-xs text-gray-500">{date.month}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent" />
+                    <button
+                      type="button"
+                      onClick={() => scrollDeliveryDates(220)}
+                      disabled={!deliveryCanRight}
+                      aria-label="Scroll dates right"
+                      className={`hidden sm:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full shadow-md border bg-white z-10 ${
+                        deliveryCanRight ? "opacity-100" : "opacity-50 cursor-not-allowed"
+                      }`}
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-700" />
+                    </button>
                   </div>
                 </div>
               )}
@@ -638,31 +791,39 @@ export default function SlotSelectionPage() {
                       Schedule Delivery ({deliveryType === "express" ? "Express" : "Standard"})
                     </h3>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {deliverySlots.map((slot) => (
-                      <button
-                        key={slot.id}
-                        onClick={() =>
-                          slot.available &&
-                          setDeliverySlots((prev) =>
-                            prev.map((s) => ({ ...s, __selected: String(s.id) === String(slot.id) }))
-                          )
-                        }
-                        disabled={!slot.available}
-                        className={`p-3 sm:p-4 rounded-lg border text-left transition-all duration-200 ${
-                          !slot.available
-                            ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
-                            : (slot as any).__selected
-                            ? "border-blue-500 bg-blue-50 text-blue-600"
-                            : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        <span className="text-sm sm:text-base font-medium">{slot.label}</span>
-                        {!slot.available && <span className="block text-xs text-red-500 mt-1">Unavailable</span>}
-                      </button>
-                    ))}
-                  </div>
-                  {deliveryDate &&
+                  {deliveryLoading ? (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="p-3 sm:p-4 rounded-lg border border-gray-200 skeleton h-12 sm:h-14" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      {deliverySlots.map((slot) => (
+                        <button
+                          key={slot.id}
+                          onClick={() =>
+                            slot.available &&
+                            setDeliverySlots((prev) =>
+                              prev.map((s) => ({ ...s, __selected: String(s.id) === String(slot.id) }))
+                            )
+                          }
+                          disabled={!slot.available}
+                          className={`p-3 sm:p-4 rounded-lg border text-left transition-all duration-200 ${
+                            !slot.available
+                              ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                              : (slot as any).__selected
+                              ? "border-blue-500 bg-blue-50 text-blue-600"
+                              : "border-gray-200 hover:bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          <span className="text-sm sm:text-base font-medium">{slot.label}</span>
+                          {!slot.available && <span className="block text-xs text-red-500 mt-1">Unavailable</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {!deliveryLoading && deliveryDate &&
                     (deliverySlots.length === 0 ? (
                       <p className="text-sm text-red-600 mt-2">No delivery slots available for the selected day.</p>
                     ) : (

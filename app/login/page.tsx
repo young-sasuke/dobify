@@ -91,7 +91,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           {/* Features Section */}
           <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-6 sm:px-8 lg:px-10 py-6 sm:py-8 border-t border-gray-100">
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {/* Secure */}
               <div className="text-center group">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center mx-auto mb-2 sm:mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
