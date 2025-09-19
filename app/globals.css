@@ -49,6 +49,16 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
+  /* Full-bleed background utility (ensure sections span the viewport width) */
+  .full-bleed {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+  }
+
   /* Skeleton shimmer */
   .skeleton {
     position: relative;
