@@ -323,9 +323,9 @@ export default function CartPage() {
   const canProceed = availabilityStatus.checked && availabilityStatus.available
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={cartItems.length} />
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 lg:mb-8 flex items-center gap-2 sm:gap-3">
             <ShoppingBag className="text-blue-600 w-5 h-5 sm:w-6 sm:h-6" />
@@ -517,7 +517,7 @@ export default function CartPage() {
                   {/* Check Availability */}
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2 mb-3">
-                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Check Availability</h3>
                     </div>
                     <div className="flex gap-2 mb-3">

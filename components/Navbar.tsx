@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
@@ -54,9 +54,9 @@ export default function Navbar({ cartCount }: NavbarProps) {
   ]
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+    <nav className="row-start-1 sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-100">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="flex items-center justify-between py-3 sm:py-4">
           {/* Logo */}
           <button
             onClick={() => router.push("/")}
@@ -70,7 +70,7 @@ export default function Navbar({ cartCount }: NavbarProps) {
               width={240}
               height={90}
               priority
-              className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+              className="h-auto max-h-12 sm:max-h-14 lg:max-h-16 w-auto object-contain"
             />
           </button>
 
@@ -82,7 +82,7 @@ export default function Navbar({ cartCount }: NavbarProps) {
                 onClick={() => router.push(item.path)}
                 className="relative flex items-center gap-2 px-3 lg:px-4 py-2 rounded-lg hover:bg-gray-100 transition-all group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <item.icon className="w-5 h-5 lg:w-6 lg:h-6 text-gray-600 group-hover:text-blue-600" />
+                <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-blue-600" />
                 <span className="hidden lg:block text-sm font-medium text-gray-700 group-hover:text-blue-600">
                   {item.label}
                 </span>
@@ -120,7 +120,7 @@ export default function Navbar({ cartCount }: NavbarProps) {
                   }}
                   className="relative flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-gray-100 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
-                  <item.icon className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
+                  <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">
                     {item.label}
                   </span>

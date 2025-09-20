@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Navbar from "@/components/Navbar"
@@ -32,8 +32,14 @@ export default function SlotSelectionPage() {
     phone: "+91 98765 43210",
   })
 
+  const [mounted, setMounted] = useState(false)
+
+  // 2) Mount flag (prevents SSR/client divergence)
+  useEffect(() => { setMounted(true) }, [])
+
   // Load saved structured address on mount/visibility
   useEffect(() => {
+    if (!mounted) return
     const load = () => {
       try {
         const raw = localStorage.getItem("selectedAddress")
@@ -57,7 +63,7 @@ export default function SlotSelectionPage() {
     const onShow = () => load()
     window.addEventListener("visibilitychange", onShow)
     return () => window.removeEventListener("visibilitychange", onShow)
-  }, [])
+  }, [mounted])
 
   const [deliveryType, setDeliveryType] = useState<"standard" | "express">("standard")
   const [selectedDate, setSelectedDate] = useState<string>("") // pickup date
@@ -118,6 +124,7 @@ export default function SlotSelectionPage() {
 
   // Load dates + pincode + cart + saved totals once
   useEffect(() => {
+    if (!mounted) return
     const dates = getSevenDates()
     setAvailableDates(dates)
     setSelectedDate(dates[0].date)
@@ -159,7 +166,7 @@ export default function SlotSelectionPage() {
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mounted])
 
   // Load delivery_slot_matrix when type changes
   useEffect(() => {
@@ -410,6 +417,7 @@ export default function SlotSelectionPage() {
 
   // Persist selection
   useEffect(() => {
+    if (!mounted) return
     if (selectedTimeSlot && deliveryDate) {
       const pickupSlot = pickupSlots.find((s) => String(s.id) === String(selectedTimeSlot))
       const deliverySelected = deliverySlots.find((s: any) => (s as any).__selected)
@@ -420,7 +428,7 @@ export default function SlotSelectionPage() {
       }
       try { localStorage.setItem("slotSelection", JSON.stringify(obj)) } catch {}
     }
-  }, [selectedTimeSlot, deliveryDate, deliverySlots, deliveryType, pickupSlots, selectedDate])
+  }, [mounted, selectedTimeSlot, deliveryDate, deliverySlots, deliveryType, pickupSlots, selectedDate])
 
   // ---------- Pricing (now sourced from `bill`) ----------
   const subtotal = bill.subtotal
@@ -526,11 +534,13 @@ export default function SlotSelectionPage() {
     }
   }
 
+  if (!mounted) return null
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={cartItems.length} />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
@@ -615,7 +625,7 @@ export default function SlotSelectionPage() {
               {/* Select Pickup Date */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Select Pickup Date</h3>
                 </div>
                 <div className="relative">
@@ -675,11 +685,11 @@ export default function SlotSelectionPage() {
               {/* Schedule Pickup */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Schedule Pickup</h3>
                 </div>
                 {pickupLoading ? (
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
+<div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
@@ -688,7 +698,7 @@ export default function SlotSelectionPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+<div className="grid grid-cols-2 gap-2 sm:gap-3">
                     {pickupSlots.map((slot) => (
                       <button
                         key={slot.id}
@@ -714,7 +724,7 @@ export default function SlotSelectionPage() {
               {selectedTimeSlot && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6" ref={deliveryRef}>
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                     <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Select Delivery Date</h3>
                   </div>
                   <div className="relative">
@@ -786,19 +796,19 @@ export default function SlotSelectionPage() {
               {selectedTimeSlot && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                     <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                       Schedule Delivery ({deliveryType === "express" ? "Express" : "Standard"})
                     </h3>
                   </div>
                   {deliveryLoading ? (
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
+<div className="grid grid-cols-2 gap-2 sm:gap-3" aria-live="polite" aria-busy="true">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="p-3 sm:p-4 rounded-lg border border-gray-200 skeleton h-12 sm:h-14" />
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+<div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {deliverySlots.map((slot) => (
                         <button
                           key={slot.id}

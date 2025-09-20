@@ -241,10 +241,10 @@ export default function MapPickerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={0} />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -303,7 +303,7 @@ export default function MapPickerPage() {
             }}
             className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium text-sm sm:text-base flex items-center justify-center gap-2 mb-4 sm:mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Navigation className="w-5 h-5 sm:w-6 sm:h-6" />
             Use Current Location
           </button>
 
@@ -344,7 +344,7 @@ export default function MapPickerPage() {
                     className="w-full text-left p-3 sm:p-4 hover:bg-gray-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                      <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-gray-900 text-sm sm:text-base">{place.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">

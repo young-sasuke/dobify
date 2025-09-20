@@ -263,7 +263,7 @@ export default function OrderDetailsSheet({ orderId, open, onOpenChange }: Props
           <div className="text-lg font-semibold font-mono tracking-tight">#{String(orderId)}</div>
         </SheetHeader>
 
-        <div className="mt-4 space-y-6 overflow-y-auto h-[calc(100vh-7.5rem)] pr-1">
+        <div className="mt-4 space-y-6 overflow-y-auto h-[calc(100svh-7.5rem)] md:h-[calc(100vh-7.5rem)] pr-1">
           {/* Schedule */}
           <section className="space-y-3">
             <div className="flex items-start gap-3">

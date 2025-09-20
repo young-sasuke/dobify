@@ -93,10 +93,10 @@ function OrderSuccessPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={0} />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
         <div className="max-w-2xl mx-auto">
           {/* Success Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-10 text-center">

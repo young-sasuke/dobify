@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
@@ -10,21 +10,32 @@ import { useAuth } from "@/components/AuthProvider"
 import { toast } from "sonner"
 
 export default function ReviewCartPage() {
+  /** 1) ALL HOOKS (unconditional, top-level, fixed order) **/
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+
+  // state (keep original names and inits)
   const [cartItems, setCartItems] = useState<any[]>([])
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([])
   const [showCoupons, setShowCoupons] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
+  /** 2) Mount flag (prevents SSR/client divergence) **/
+  useEffect(() => { setMounted(true) }, [])
+
+  /** Auth redirect (kept behavior) **/
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login?next=/review-cart')
     }
   }, [authLoading, user, router])
 
+  /** 3) CLIENT-ONLY READS (localStorage, etc.) **/
   useEffect(() => {
+    if (!mounted) return
+
     const fetchCartData = async () => {
       try {
         // 1) Get cart items from localStorage
@@ -97,8 +108,9 @@ export default function ReviewCartPage() {
     }
 
     fetchCartData()
-  }, [])
+  }, [mounted])
 
+  /** 4) PURE DERIVED VALUES (no side effects) **/
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       const quantity = item.quantity || 1
@@ -124,10 +136,29 @@ export default function ReviewCartPage() {
     return Math.min(subtotal, appliedCoupon.discount_value)
   }
 
-  const subtotal = calculateSubtotal()
+  const subtotal = useMemo(() => calculateSubtotal(), [cartItems])
   const deliveryFee = 30
-  const discount = calculateDiscount()
-  const totalAmount = subtotal + deliveryFee - discount
+  const discount = useMemo(() => calculateDiscount(), [appliedCoupon, cartItems])
+  const totalAmount = useMemo(() => subtotal + deliveryFee - discount, [subtotal, deliveryFee, discount])
+
+  /** 5) SIDE EFFECTS THAT WRITE (persist/analytics) **/
+  useEffect(() => {
+    if (!mounted) return
+    try {
+      const payload = {
+        subtotal,
+        deliveryFee,
+        discount,
+        total: totalAmount,
+        // keep the whole coupon object if present so we have code + thresholds later
+        appliedCoupon,
+      }
+      localStorage.setItem("reviewTotals", JSON.stringify(payload))
+    } catch {}
+  }, [mounted, subtotal, deliveryFee, discount, totalAmount, appliedCoupon])
+
+  /** 6) Early return ONLY AFTER all hooks **/
+  if (!mounted) return null
 
   if (authLoading) {
     return (
@@ -136,27 +167,13 @@ export default function ReviewCartPage() {
       </div>
     )
   }
-  // Persist what the user saw on Review so the next page reuses *exactly* those numbers
-useEffect(() => {
-  try {
-    const payload = {
-      subtotal,
-      deliveryFee,
-      discount,
-      total: totalAmount,
-      // keep the whole coupon object if present so we have code + thresholds later
-      appliedCoupon,
-    }
-    localStorage.setItem("reviewTotals", JSON.stringify(payload))
-  } catch {}
-}, [subtotal, deliveryFee, discount, totalAmount, appliedCoupon])
 
-
+  /** 7) Render — KEEP UI IDENTICAL **/
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={cartItems.length} />
 
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-4 sm:mb-6 lg:mb-8">

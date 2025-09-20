@@ -39,11 +39,11 @@ type AddressCard = {
 
 const typeIcon = (t: AddressCard["type"]) =>
   t === "home" ? (
-    <Home className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+    <Home className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
   ) : t === "work" ? (
-    <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+    <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
   ) : (
-    <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+    <MapPinIcon className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
   )
 
 const fullPreview = (a: AddressCard) =>
@@ -205,9 +205,9 @@ export default function AddressBookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       <Navbar cartCount={0} />
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <main className="row-start-2 container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-6 lg:mb-8">
@@ -330,7 +330,7 @@ export default function AddressBookPage() {
             onClick={() => router.push("/map-picker")}
             className="w-full mt-4 sm:mt-6 bg-gray-100 text-gray-700 py-3 sm:py-4 rounded-xl hover:bg-gray-200 transition-all font-medium text-sm sm:text-base flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             Add New Address
           </button>
         </div>

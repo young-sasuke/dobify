@@ -62,7 +62,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-cyan-100 p-4 sm:p-6">
+    <div className="min-h-[100svh] md:min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-cyan-100 p-4 sm:p-6">
       <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg">
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-sm">
@@ -95,7 +95,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               {/* Secure */}
               <div className="text-center group">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center mx-auto mb-2 sm:mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 text-white" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-gray-700">Secure</span>
               </div>
@@ -103,7 +103,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               {/* Fast */}
               <div className="text-center group">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center mx-auto mb-2 sm:mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 text-white" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-gray-700">Fast</span>
               </div>
@@ -111,7 +111,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               {/* Trusted */}
               <div className="text-center group">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl shadow-md flex items-center justify-center mx-auto mb-2 sm:mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                  <Award className="w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 text-white" />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-gray-700">Trusted</span>
               </div>

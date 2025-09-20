@@ -13,9 +13,9 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100svh] md:min-h-screen grid grid-rows-[auto_1fr_auto] bg-gray-50">
       {/* Navigation Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="row-start-1 sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
@@ -75,7 +75,7 @@ export default function AdminLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="row-start-2 flex-1">
         {children}
       </main>
     </div>

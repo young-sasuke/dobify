@@ -248,7 +248,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[100svh] md:min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading profile...</p>
@@ -259,7 +259,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-[100svh] md:min-h-screen bg-gray-50">
         <Navbar cartCount={0} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
@@ -279,7 +279,7 @@ export default function ProfilePage() {
       : profile?.first_name || user.email?.split("@")[0] || "User"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+    <div className="min-h-[100svh] md:min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
         <div className="container mx-auto px-4 py-8">
